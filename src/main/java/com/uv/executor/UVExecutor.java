@@ -5,6 +5,7 @@ package com.uv.executor;
  * 执行器，查询sql
  */
 
+import com.alibaba.druid.pool.DruidDataSource;
 import com.uv.config.Configuration;
 import com.uv.config.MapperStatement;
 import java.lang.reflect.Field;
@@ -19,26 +20,36 @@ import java.util.List;
 public class UVExecutor implements Executor {
 
     private Configuration configuration;
+    private DruidDataSource dataSource;
+
+    private void initDataSource() {
+        dataSource = new DruidDataSource();
+        dataSource.setDriverClassName(configuration.getJdbcDriver());
+        dataSource.setUrl(configuration.getJdbcUrl());
+        dataSource.setUsername(configuration.getJdbcUserName());
+        dataSource.setPassword(configuration.getJdbcPassword());
+    }
 
     public UVExecutor(Configuration configuration) {
         this.configuration = configuration;
+        initDataSource();
     }
 
     @Override
     public <T> List<T> query(MapperStatement statement, Object param) {
         Connection connection = null;
         try {
-            Class.forName(configuration.getJdbcDriver());
-            connection = DriverManager
-                .getConnection(configuration.getJdbcUrl(), configuration.getJdbcUserName(), configuration.getJdbcPassword());
+            connection = dataSource.getConnection();
             PreparedStatement prepareStatement = connection.prepareStatement(statement.getSql());
-            prepareStatement.setObject(1, param);
+            if(param != null) { //暂时就当一个参数处理
+                prepareStatement.setObject(1, param);
+            }
             ResultSet resultSet = prepareStatement.executeQuery();
             return resolveResult(statement, resultSet);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if(connection != null) {
+            if (connection != null) {
                 try {
                     connection.close();
                 } catch (SQLException e) {

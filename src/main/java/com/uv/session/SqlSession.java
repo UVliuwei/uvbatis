@@ -14,6 +14,8 @@ public interface SqlSession {
 
     <T> List<T> getAll(MapperStatement statement, Object param);
 
+    <T> List<T> getAll(MapperStatement statement);
+
     <T> T getMapper(Class<T> clazz);
 
 }

@@ -28,7 +28,10 @@ public class MapperProxy implements InvocationHandler {
         String methodName = method.getName(); //方法名
         MapperStatement statement = configuration.getStatementMap().get(nameSpace + "." + methodName);
         if(Collection.class.isAssignableFrom(method.getReturnType())) { //返回集合类型
-            return sqlSession.getAll(statement, args[0]);//特殊处理，默认当一个处理了(懒得处理)
+            if(args == null) {
+                return sqlSession.getAll(statement, args);
+            }
+            return sqlSession.getAll(statement, args[0]);//特殊处理，默认当一个处理了(有时间再处理)
         }
         return sqlSession.getOne(statement, args[0]);
     }

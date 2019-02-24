@@ -44,6 +44,11 @@ public class UVSqlSession implements SqlSession, Serializable {
     }
 
     @Override
+    public <T> List<T> getAll(MapperStatement statement) {
+        return null;
+    }
+
+    @Override
     public <T> T getMapper(Class<T> clazz) {
         try {
             MapperProxy mapperProxy = new MapperProxy(this, configuration);
